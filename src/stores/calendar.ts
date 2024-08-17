@@ -5,7 +5,8 @@ import type { CalendarDay } from '@/types/calendar.ts'
 export const useCalendarStore = defineStore('calendar', () => {
   const dateSelected = ref<CalendarDay>({
     endDate: new Date(),
-    isDisabled: false
+    isDisabled: false,
+    ariaLabel: ''
   })
 
   const dateHasSelected = ref<boolean>(false)
@@ -17,6 +18,7 @@ export const useCalendarStore = defineStore('calendar', () => {
       dateHasSelected.value = true
     }
   }
+  
   return {
     dateSelected,
     dateHasSelected,

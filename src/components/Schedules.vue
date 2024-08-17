@@ -1,24 +1,32 @@
 <template>
   <div class="schedules">
-    <h1>Schedules</h1>
+    <h1>Schedules {{ dateSelected.ariaLabel }}</h1>
     <div v-for="schedule in schedules" :key="schedule.debut">
-      <h2>{{ schedule.debut }} - {{ schedule.fin }}</h2>
+      <div>{{ schedule.debut }}</div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useCalendarStore } from '@/stores/calendar'
+import { storeToRefs } from 'pinia'
+
+const calendarStore = useCalendarStore()
+const { dateSelected } = storeToRefs(calendarStore)
 
 const schedules = ref<any>([])
  onMounted(() => {
    schedules.value = genererCreneaux(30, "08:00", "12:00");
  })
+ // minute and hourStart and hourEnd are the parameters from database
+ function genererCreneaux(minute: number, hourStart: string, hourEnd: string) {
+  let currentDate = dateSelected.value.endDate; // Obtient la date actuelle
+  let debut = new Date(currentDate);
+  let fin = new Date(currentDate);
 
- function genererCreneaux(minute, hourStart, hourEnd) {
-    // Convertir les heures de début et de fin en objets Date
-    let debut = new Date(`1970-01-01T${hourStart}:00`);
-    let fin = new Date(`1970-01-01T${hourEnd}:00`);
+  debut.setHours(parseInt(hourStart.split(':')[0], 10), parseInt(hourStart.split(':')[1], 10), 0, 0);
+  fin.setHours(parseInt(hourEnd.split(':')[0], 10), parseInt(hourEnd.split(':')[1], 10), 0, 0);
     
     // Convertir la durée du créneau en millisecondes
     let dureeMs = minute * 60 * 1000;

@@ -6,6 +6,7 @@ import router from './router'
 
 import VCalendar from 'v-calendar';
 import 'v-calendar/style.css';
+import 'element-plus/dist/index.css'
 
 
 const app = createApp(App)
