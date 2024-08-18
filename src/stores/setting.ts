@@ -6,13 +6,18 @@ export const useSettingStore = defineStore('setting', () => {
         rythmeWork: 'regular',
         intervalDays: 60
     })
-    const maxDate = computed(() => {
-        const date = new Date()
-        date.setDate(date.getDate() + setting.value.intervalDays)
-        return date
-    })
+
+    const setRythmeWork = (rythme: string) => {
+        setting.value.rythmeWork = rythme
+    }
+
+    const setIntervalDays = (interval: number) => {
+        setting.value.intervalDays = +interval
+    }
+
     return {
         setting,
-        maxDate,
+        setRythmeWork,
+        setIntervalDays
     }
 })

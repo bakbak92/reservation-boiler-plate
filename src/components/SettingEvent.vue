@@ -6,13 +6,22 @@
             <div class="form-item">
                 <p>Les clients peuvent booker un créneau jusqu'a</p>
                 <div class="input-days">
-                    <el-input v-model="intervalDays" placeholder="Entrez un nombre" type="number"/>
+                    <el-input
+                        v-model="intervalDays"
+                        placeholder="Entrez un nombre"
+                        type="number"
+                        @input="setIntervalDays(intervalDays)"
+                    />
                     <span>jours</span>
                 </div>
             </div>
             <div class="form-item">
                 <p>Rythme de travail</p>
-                <el-select v-model="rythmeWork" placeholder="Selectionnez un rythme de travail">
+                <el-select
+                    v-model="rythmeWork"
+                    placeholder="Selectionnez un rythme de travail"
+                    @change="setRythmeWork(rythmeWork)"
+                >
                     <el-option
                         v-for="item in optionRythmeWork"
                         :key="item.value"
@@ -31,6 +40,7 @@ import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
 
 const settingStore = useSettingStore()
+const { setRythmeWork, setIntervalDays } = settingStore
 const { setting } = storeToRefs(settingStore)
 const intervalDays = ref<number>(60)
 const rythmeWork = ref<string>('')
@@ -41,7 +51,7 @@ const optionRythmeWork = ref([
     },
     {
         label: 'Tous les week-ends',
-        value: 'weekends'
+        value: 'weekend'
     }
 ])
 onMounted(() => {
