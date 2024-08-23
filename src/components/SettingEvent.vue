@@ -52,6 +52,10 @@ const optionRythmeWork = ref([
     {
         label: 'Tous les week-ends',
         value: 'weekend'
+    },
+    {
+        label: 'Tous les jours',
+        value: 'all'
     }
 ])
 onMounted(() => {
