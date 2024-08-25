@@ -7,6 +7,8 @@ export const useSettingStore = defineStore('setting', () => {
         intervalDays: 60
     })
 
+    const specificDays = ref<number[]>([])
+
     const setRythmeWork = (rythme: string) => {
         setting.value.rythmeWork = rythme
     }
@@ -18,6 +20,7 @@ export const useSettingStore = defineStore('setting', () => {
     return {
         setting,
         setRythmeWork,
-        setIntervalDays
+        setIntervalDays,
+        specificDays
     }
 })

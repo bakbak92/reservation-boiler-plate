@@ -7,6 +7,7 @@
                 :max-date="maxDate"
                 :disabled-dates="disabledDates"
                 :attributes="attributes"
+                :select-attribute="selectAttribute"
                 @dayclick="handleSelectDate"
             />
             <div>
@@ -23,33 +24,39 @@ import SettingEvent from '@/components/SettingEvent.vue'
 import { useCalendarStore } from '@/stores/calendar'
 import { storeToRefs } from 'pinia'
 import { useSettingStore } from '@/stores/setting'
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
+import { regular, weekends, allDays, getWeekdays } from '@/utils/dates'
+
 const calendarStore = useCalendarStore()
 const settingStore = useSettingStore()
 const { selectDate } = calendarStore
 const { dateHasSelected } = storeToRefs(calendarStore)
-const { setting } = storeToRefs(settingStore)
+const { setting, specificDays } = storeToRefs(settingStore)
 
-const regular = [2, 3, 4, 5, 6]
-const weekends = [1, 7]
-
+const dateSelected = ref<Date | null>(null)
 const handleSelectDate = (date: CalendarDay) => {
-    return 'selected-bakbak'
+    console.log(date)
+    if (!date.isDisabled) {
+        selectDate(date)
+        dateSelected.value = date.date
+    }
 }
-const generateDates = (maxDate:Date, includeWeekends = false) => {
-    const dates = []
-    let currentDate = new Date()
-    const endDate = new Date(maxDate.setDate(currentDate.getDate() + 1))
+const generateDates = (maxDate: Date, allowedDays: number[]) => {
+    const dates = [];
+    let currentDate = new Date();
+    const endDate = new Date(maxDate.setDate(maxDate.getDate() + 1));
 
     while (currentDate <= endDate) {
-      const isWeekend = currentDate.getDay() === 0 || currentDate.getDay() === 6;
+        const currentDay = currentDate.getDay();
 
-      if ((includeWeekends && isWeekend) || (!includeWeekends && !isWeekend)) {
-        dates.push(new Date(currentDate));
-      }
+        // Vérifier si le jour actuel est dans la liste des jours autorisés
+        if (allowedDays.includes(currentDay) &&
+            (!dateSelected.value || currentDate.toDateString() !== dateSelected.value.toDateString())) {
+            dates.push(new Date(currentDate));
+        }
 
-      // Passer au jour suivant
-      currentDate.setDate(currentDate.getDate() + 1);
+        // Passer au jour suivant
+        currentDate.setDate(currentDate.getDate() + 1);
     }
 
     return dates;
@@ -57,23 +64,42 @@ const generateDates = (maxDate:Date, includeWeekends = false) => {
 
 const maxDate = computed(() => {
     const date = new Date()
-    console.log(date, date.getDate())
     date.setDate(date.getDate() + setting.value.intervalDays)
     return date
 })
 
-const withWeekends = computed(() => {
-    return setting.value.rythmeWork !== 'regular'
+const listeDays = computed(() => {
+   if(setting.value.rythmeWork === 'regular') {
+       return regular
+   } else if(setting.value.rythmeWork === 'weekend') {
+       return weekends
+   } if(setting.value.rythmeWork === 'specific') {
+       return specificDays.value
+    }
+    else {
+       return allDays
+   }
 })
+const selectAttribute = ref({
+    dot: true
+});
 
 const attributes = computed(() => {
     return [
         {
-            key: 'today',
-            highlight: {
-                color: 'white',
+            content: {
+                color: '#3a86ff',
+                style: {
+                    backgroundColor: '#bde0fe',
+                }
             },
-            dates: generateDates(maxDate.value, withWeekends.value),
+            dates: generateDates(maxDate.value, listeDays.value),
+        },
+        {
+            highlight: {
+                color: 'blue',
+            },
+            dates: [new Date(2024, 8, 27), dateSelected.value]
         }
     ]
 })
@@ -81,7 +107,7 @@ const disabledDates = computed(() => {
     return [
         {
             repeat: {
-                weekdays: setting.value.rythmeWork === 'regular' ? weekends : regular
+                weekdays: getWeekdays(listeDays.value),
             }
         }
     ]

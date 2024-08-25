@@ -2,7 +2,7 @@
   <div class="schedules">
     <h1>Schedules {{ dateSelected.ariaLabel }}</h1>
     <div v-for="schedule in schedules" :key="schedule.debut">
-      <div>{{ schedule.debut }}</div>
+      <div class="schedule-item">{{ schedule.debut }}</div>
     </div>
   </div>
 </template>
@@ -51,3 +51,12 @@ const schedules = ref<any>([])
 }
 
 </script>
+<style lang="scss" scoped>
+.schedules {
+  .schedule-item {
+    padding: 10px;
+    border: 1px solid #ccc;
+    margin-bottom: 10px;
+  }
+}
+</style>
