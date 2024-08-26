@@ -45,27 +45,37 @@
             </div>
             <div class="form-item">
                 <p>Heure de Disponibilité par jour <span class="btn-plus">+</span></p>
-                <div v-for="(time, i) in times" :key="i" class="time-item">
-                    <span class="day">{{ getWeekdays(time.weekday) }}</span>
-                    <ElTimeSelect
-                        placeholder="Heure de début"
-                        v-model="time.start"
-                        :picker-options="{
-                            start: '08:00',
-                            step: duration,
-                            end: '18:00'
-                        }"
-                    />
-                    <span>à</span>
-                    <ElTimeSelect
-                        placeholder="Heure de fin"
-                        v-model="time.end"
-                        :picker-options="{
-                            start: '08:00',
-                            step: duration,
-                            end: '18:00'
-                        }"
-                    />
+                <div v-for="(time, i) in timesFiltered" :key="i" class="time-item">
+                    <div class="label-day">
+                        <span class="day">{{ getWeekdays(time.weekday) }}</span>
+                        <ElButton type="primary" circle @click="addInterval(i)">
+                            <i class="fa-solid fa-plus"></i>
+                        </ElButton>
+                    </div>
+                    <div v-for="(interval, j) in time.intervals" :key="j" class="interval-item">
+                        <ElTimeSelect
+                            placeholder="Heure de début"
+                            v-model="interval.start"
+                            :picker-options="{
+                                start: '08:00',
+                                step: duration,
+                                end: '18:00'
+                            }"
+                        />
+                        <span>à</span>
+                        <ElTimeSelect
+                            placeholder="Heure de fin"
+                            v-model="interval.end"
+                            :picker-options="{
+                                start: '08:00',
+                                step: duration,
+                                end: '18:00'
+                            }"
+                        />
+                        <ElButton type="danger" circle @click="removeInterval(i, j)">
+                            <i class="fa-solid fa-trash"></i>
+                        </ElButton>
+                    </div>
                 </div>
             </div>
         </div>
@@ -76,7 +86,7 @@ import {
     ElInput, ElSelect, ElOption, ElCheckboxGroup, ElCheckbox, ElButton,
     ElTimeSelect
 } from 'element-plus'
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, computed } from 'vue'
 import { useSettingStore } from '@/stores/setting'
 import { storeToRefs } from 'pinia'
 
@@ -108,44 +118,75 @@ const duration = ref<string>('00:30')
 const times = ref([
     {
         weekday: 1,
-        start: '08:00',
-        end: '12:00'
+        intervals: [
+            {
+                start: '08:00',
+                end: '12:00'
+            }
+        ]
     },
     {
         weekday: 2,
-        start: '14:00',
-        end: '18:00'
+        intervals: [
+            {
+                start: '08:00',
+                end: '12:00'
+            }
+        ]
     },
     {
         weekday: 3,
-        start: '08:00',
-        end: '12:00'
+        intervals: [
+            {
+                start: '08:00',
+                end: '12:00'
+            }
+        ]
     },
     {
         weekday: 4,
-        start: '14:00',
-        end: '18:00'
+        intervals: [
+            {
+                start: '08:00',
+                end: '12:00'
+            }
+        ]
     },
     {
         weekday: 5,
-        start: '08:00',
-        end: '12:00'
+        intervals: [
+            {
+                start: '08:00',
+                end: '12:00'
+            }
+        ]
     },
     {
         weekday: 6,
-        start: '14:00',
-        end: '18:00'
+        intervals: [
+            {
+                start: '08:00',
+                end: '12:00'
+            }
+        ]
     },
     {
         weekday: 0,
-        start: '08:00',
-        end: '12:00'
+        intervals: [
+            {
+                start: '08:00',
+                end: '12:00'
+            }
+        ]
     }
 ])
 
+
 const checkedDays = ref<number[]>([0, 6])
 const disabledCheckdays = ref(true)
-
+const timesFiltered = computed(() => {
+    return times.value.filter((time) => checkedDays.value.includes(time.weekday))
+})
 const changeCheckedDays = (value:any) => {
     disabledCheckdays.value = false
     checkedDays.value = value
@@ -154,6 +195,15 @@ const changeCheckedDays = (value:any) => {
 const getWeekdays = (day: number) => {
     const weekdays = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
     return weekdays[day]
+}
+const addInterval = (index: number) => {
+    times.value[index].intervals.push({
+        start: '08:00',
+        end: '12:00'
+    })
+}
+const removeInterval = (index: number, intervalIndex: number) => {
+    times.value[index].intervals.splice(intervalIndex, 1)
 }
 watch(() => setting.value.rythmeWork, (value) => {
     if(value === 'all') {
@@ -193,10 +243,37 @@ onMounted(() => {
             }
         }
         .time-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            .day {
+                min-width: 80px;
+                display: inline-block;
+                margin-bottom: 10px;
+            }
+            .interval-item {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                margin-bottom: 10px;
+            }
+            .label-day {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+        }
+    }
+}
+.el-button {
+    &.is-circle {
+        min-width: 24px;
+        height: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 0;
+        i {
+            font-size: 12px;
         }
     }
 }
